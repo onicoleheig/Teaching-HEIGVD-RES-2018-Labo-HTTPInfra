@@ -287,6 +287,12 @@ $(function() {
 
 ### Configuration
 
+création de apache2-foreground...
+
+création de template
+
+
+
 
 
 ### Acceptance criteria
