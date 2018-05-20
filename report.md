@@ -132,35 +132,92 @@ docker run -it res/express_locations /bin/bash
 
 ### Configuration
 
-$ docker run -d --name apache_static res/apache_php
+Reload docker images from step 1 and 2 (kill all current running images)
 
-$ docker run -d --name express_dynamic res/express_locations 
+```dockerfile
+#run docker images
+docker run -d --name apache_static res/apache_php
+docker run -d --name express_dynamic res/express_locations 
 
-$ docker inspect apache_static | grep -i ipaddress -> 172.17.0.2
+#get images IPs
+docker inspect apache_static | grep -i ipaddress -> 172.17.0.2
+docker inspect express_dynamic | grep -i ipaddress -> 172.17.0.3
 
-$ docker inspect express_dynamic | grep -i ipaddress -> 172.17.0.3
+```
+
+To create the conf files for apache in the folder /etc/apache2/sites-available/
+
+000-default.conf
+
+```
+<VirtualHost *:80>
+</VirtualHost>
+```
+
+001-reverse-proxy.conf
+
+```
+<VirtualHost *:80>
+	#specify a servername
+    ServerName demo.res.ch
+    
+    #specify the proxy for the location api
+    ProxyPass "/api/locations/" "http://172.17.0.3:3000/"
+    ProxyPassReverse "/api/locations/" "http://172.17.0.3:3000/"
+    
+    #specify the proxy for the web server
+    ProxyPass "/" "http://172.17.0.2:80/"
+    ProxyPassReverse "/" "http://172.17.0.2:80/" 
+</VirtualHost>
+```
+
+How to test it in local first 
+
+```
+ docker-machine ssh
+ telnet 172.17.0.3 3000
+ GET / HTTP/1.0
+```
+
+After that, let's start the proxy with that dockerfile
+
+```
+#specify apache version
+FROM php:5.6-apache
+
+COPY conf/ /etc/apache2/
+
+#enable modules and sites configurations that we've created in the "conf/" folder
+RUN a2enmod proxy proxy_http
+RUN a2ensite 000-* 001-*
+```
+
+Docker commands 
+
+```
+docker build -t res/apache_rp .
+docker run -p 8080:80 res/apache_rp
+```
+
+If you're on local, update your hosts file to redirect demo.res.ch to your docker ip
+
+You can now acces to 
+
+http://demo.res.ch:8080 and http://demo.res.ch:8080/api/locations
 
 
-
-Pour voir fonctionner...
-
-$ docker-machine ssh
-
-telnet 172.17.0.3 3000
-
-GET / HTTP/1.0 (puis deux fois enter)
 
 ### Acceptance criteria
 
-- You have a GitHub repo with everything needed to build the Docker image for the container.
+- You have a GitHub repo with everything needed to build the Docker image for the container. ✔
 
-- You do a demo, where you start from an "empty" Docker environment (no container running) and where you start 3 containers: static server, dynamic server and reverse proxy; in the demo, you prove that the routing is done correctly by the reverse proxy.
+- You do a demo, where you start from an "empty" Docker environment (no container running) and where you start 3 containers: static server, dynamic server and reverse proxy; in the demo, you prove that the routing is done correctly by the reverse proxy. ✔
 
-- You can explain and prove that the static and dynamic servers cannot be reached directly (reverse proxy is a single entry point in the infra).
+- You can explain and prove that the static and dynamic servers cannot be reached directly (reverse proxy is a single entry point in the infra). ✔
 
-- You are able to explain why the static configuration is fragile and needs to be improved.
+- You are able to explain why the static configuration is fragile and needs to be improved. ✔
 
-- You have documented your configuration in your report.
+- You have documented your configuration in your report. ✔
 
   ​
 
