@@ -132,9 +132,23 @@ docker run -it res/express_locations /bin/bash
 
 ### Configuration
 
+$ docker run -d --name apache_static res/apache_php
+
+$ docker run -d --name express_dynamic res/express_locations 
+
+$ docker inspect apache_static | grep -i ipaddress -> 172.17.0.2
+
+$ docker inspect express_dynamic | grep -i ipaddress -> 172.17.0.3
 
 
 
+Pour voir fonctionner...
+
+$ docker-machine ssh
+
+telnet 172.17.0.3 3000
+
+GET / HTTP/1.0 (puis deux fois enter)
 
 ### Acceptance criteria
 
