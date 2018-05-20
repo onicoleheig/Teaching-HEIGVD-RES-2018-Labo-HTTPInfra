@@ -197,6 +197,7 @@ Docker commands
 ```
 docker build -t res/apache_rp .
 docker run -p 8080:80 res/apache_rp
+docker run -d -p 8080:80 --name apache_rp res/apache_rp
 ```
 
 If you're on local, update your hosts file to redirect demo.res.ch to your docker ip
@@ -225,19 +226,60 @@ http://demo.res.ch:8080 and http://demo.res.ch:8080/api/locations
 
 ### Configuration
 
+All dockerfiles updated to install VI
+
+```dockerfile
+RUN apt-get update && \
+ apt-get install -y vim
+```
+
+Now we can reload docker images and containers.
+
+Update apache-php-image/content/index.php to add a script html balise
+
+```html
+<!-- Custom script to load locations -->
+<script src="js/locations.js"></script>
+```
+
+And now we can create the script in apache-php-image/content/js/locations.js
+
+```javascript
+$(function() {
+    console.log("Loading locations");
+    
+    //asynchornous ajax request to get location without reload the page
+    function loadLocations(){
+        $.getJSON("/api/locations/", function(locations){
+            console.log(locations);
+            var message = "No location !";
+            if(locations.length > 0){
+                message = locations[0].city + " " + locations[0].city;
+            }
+            $("#location").text(message);
+        });
+    };
+    
+    loadLocations();
+    
+    //call loadLocations function each seconds
+    setInterval(loadLocations, 1000);
+});
+```
+
 
 
 ### Acceptance criteria
 
-- You have a GitHub repo with everything needed to build the various images.
+- You have a GitHub repo with everything needed to build the various images. ✔
 
-- You do a complete, end-to-end demonstration: the web page is dynamically updated every few seconds (with the data coming from the dynamic backend).
+- You do a complete, end-to-end demonstration: the web page is dynamically updated every few seconds (with the data coming from the dynamic backend). ✔
 
-- You are able to prove that AJAX requests are sent by the browser and you can show the content of th responses.
+- You are able to prove that AJAX requests are sent by the browser and you can show the content of th responses. ✔
 
-- You are able to explain why your demo would not work without a reverse proxy (because of a security restriction).
+- You are able to explain why your demo would not work without a reverse proxy (because of a security restriction). ✔
 
-- You have documented your configuration in your report.
+- You have documented your configuration in your report. ✔
 
   ​
 
