@@ -149,14 +149,14 @@ To create the conf files for apache in the folder /etc/apache2/sites-available/
 
 000-default.conf
 
-```
+```xml
 <VirtualHost *:80>
 </VirtualHost>
 ```
 
 001-reverse-proxy.conf
 
-```
+```xml
 <VirtualHost *:80>
 	#specify a servername
     ServerName demo.res.ch
@@ -173,7 +173,7 @@ To create the conf files for apache in the folder /etc/apache2/sites-available/
 
 How to test it in local first 
 
-```
+```powershell
  docker-machine ssh
  telnet 172.17.0.3 3000
  GET / HTTP/1.0
@@ -181,7 +181,7 @@ How to test it in local first
 
 After that, let's start the proxy with that dockerfile
 
-```
+```dockerfile
 #specify apache version
 FROM php:5.6-apache
 
@@ -194,7 +194,7 @@ RUN a2ensite 000-* 001-*
 
 Docker commands 
 
-```
+```dockerfile
 docker build -t res/apache_rp .
 docker run -p 8080:80 res/apache_rp
 docker run -d -p 8080:80 --name apache_rp res/apache_rp
@@ -287,30 +287,82 @@ $(function() {
 
 ### Configuration
 
-création de apache2-foreground...
+In this part, I've tried to copy the apache2-foreground in the YouTuve vidéo but I had the following error : 
 
-création de template
+![](images_report\5_apache2-foreground_error.jpg)
 
+I've decided to get the new apacher2-foreground from the official docker-images GitHub : https://github.com/docker-library/php/blob/master/5.6/jessie/apache/apache2-foreground
 
+The bug is resolved with that manipulation.
+
+After that, I've created the following PHP template to replace the static IPs with the IPs specified when start the docker image :
+
+config-template.php
+
+```php
+<?php 
+    $STATIC_APP = getenv('STATIC_APP');
+    $DYNAMIC_APP = getenv('DYNAMIC_APP');
+?>
+
+<VirtualHost *:80>
+    ServerName demo.res.ch
+    
+    ProxyPass '/api/locations/' 'http://<?php print "$DYNAMIC_APP" ?>/'
+    ProxyPassReverse '/api/locations/' 'http://<?php print "$DYNAMIC_APP" ?>/'
+    
+    ProxyPass '/' 'http://<?php print "$STATIC_APP" ?>/'
+    ProxyPassReverse '/' 'http://<?php print "$STATIC_APP" ?>/' 
+</VirtualHost>
+```
+
+He overwrite 001-reverse-proxy.conf with the IPs specified on the docker run command :
+
+```powershell
+php /var/apache2/templates/config-template.php > /etc/apache2/sites-available/001-reverse-proxy.conf
+```
+
+Docker run command : 
+
+```powershell
+php /var/apache2/templates/config-template.php > /etc/apache2/sites-available/001-reverse-proxy.conf
+```
 
 
 
 ### Acceptance criteria
 
-- You have a GitHub repo with everything needed to build the various images.
+- You have a GitHub repo with everything needed to build the various images. ✔
 
-- You have found a way to replace the static configuration of the reverse proxy (hard-coded IP adresses) with a dynamic configuration.
+- You have found a way to replace the static configuration of the reverse proxy (hard-coded IP adresses) with a dynamic configuration. ✔
 
-- You may use the approach presented in the webcast (environment variables and PHP script executed when the reverse proxy container is started), or you may use another approach. The requirement is that you should not have to rebuild the reverse proxy Docker image when the IP addresses of the servers change.
+- You may use the approach presented in the webcast (environment variables and PHP script executed when the reverse proxy container is started), or you may use another approach. The requirement is that you should not have to rebuild the reverse proxy Docker image when the IP addresses of the servers change. ✔
 
-- You are able to do an end-to-end demo with a well-prepared scenario. Make sure that you can demonstrate that everything works fine when the IP addresses change!
+- You are able to do an end-to-end demo with a well-prepared scenario. Make sure that you can demonstrate that everything works fine when the IP addresses change! ✔
 
-- You are able to explain how you have implemented the solution and walk us through the configuration and the code.
+- You are able to explain how you have implemented the solution and walk us through the configuration and the code. ✔
 
-- You have documented your configuration in your report.
+- You have documented your configuration in your report. ✔
 
   ​
 
 ## Additional steps
 
 Soon...
+
+
+
+
+
+## Some useful Docker commands
+
+Source : https://techoverflow.net/2013/10/22/docker-remove-all-images-and-containers/
+
+```powershell
+#!/bin/bash
+# Delete all containers
+docker rm $(docker ps -a -q)
+# Delete all images
+docker rmi $(docker images -q)
+```
+
