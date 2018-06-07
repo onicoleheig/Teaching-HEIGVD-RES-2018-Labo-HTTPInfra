@@ -1,3 +1,7 @@
+if(process.env.LOCATIONCNT == undefined){
+    process.env.LOCATIONCNT = 0;
+}
+
 var Chance = require('chance');
 var chance = new Chance();
 
@@ -26,10 +30,11 @@ function generateLocation(){
             street: street,
             number: chance.areacode(),
             postalNumber: chance.postal(),
-            city: chance.city(),
+            city: chance.city() + process.env.LOCATIONCNT,
             country: country
         });
     }
     console.log(locations);
+    process.env.LOCATIONCNT = parseInt(process.env.LOCATIONCNT)+1;
     return locations;
 }

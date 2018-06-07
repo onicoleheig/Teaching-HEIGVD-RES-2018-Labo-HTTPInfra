@@ -387,7 +387,7 @@ finally, we can add the following line to the dockerfile to activate de module
 
 `` RUN a2enmod proxy_balancer status lbmethod_byrequests`` 
 
-To check the load balancing I tryed to kill docker container and check if the application works correctly with one or the other image running.
+To check the load balancing I tryed to kill docker container and check if the application works correctly with one or the other image running. The second test is an environment var incremented every time the nodejs app is called, and the two server are called each has their turn.
 
 ### Acceptance criteria
 
