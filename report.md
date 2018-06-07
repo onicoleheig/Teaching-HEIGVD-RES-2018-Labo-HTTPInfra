@@ -398,6 +398,33 @@ To check the load balancing I tryed to kill docker container and check if the ap
 
 
 
+## Management UI
+
+### Configuration
+
+Created a script for portainer.io 
+
+```powershell
+docker volume create portainer_data
+docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+```
+
+This script will run a docker image with the portainer app to manage docker with a web management UI.
+
+To acces to this app, run this script and acces to http://192.168.99.100:9000/#/dashboard
+
+![Portainer management UI](images_report/portainer.PNG)
+
+With this app you can do a lot of thing with Docker with a simple interface
+
+### Acceptance criteria
+
+- You develop a web app (e.g. with express.js) that administrators can use to monitor and update your web infrastructure. (✔) -> https://portainer.io/
+- You find a way to control your Docker environment (list containers, start/stop containers, etc.) from the web app. For instance, you use the Dockerode npm module (or another Docker client library, in any of the supported languages). ✔
+- You have documented your configuration and your validation procedure in your report. ✔
+
+
+
 
 ## Some useful Docker commands
 
@@ -405,6 +432,8 @@ Source : https://techoverflow.net/2013/10/22/docker-remove-all-images-and-contai
 
 ```powershell
 #!/bin/bash
+# Kill all containers
+docker kill $(docker ps -qa)
 # Delete all containers
 docker rm $(docker ps -a -q)
 # Delete all images
