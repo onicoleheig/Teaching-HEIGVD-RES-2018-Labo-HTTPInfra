@@ -289,7 +289,7 @@ $(function() {
 
 In this part, I've tried to copy the apache2-foreground in the YouTuve vidéo but I had the following error : 
 
-![](images_report\5_apache2-foreground_error.jpg)
+![](images_report/5_apache2-foreground_error.jpg)
 
 I've decided to get the new apacher2-foreground from the official docker-images GitHub : https://github.com/docker-library/php/blob/master/5.6/jessie/apache/apache2-foreground
 
@@ -325,7 +325,7 @@ php /var/apache2/templates/config-template.php > /etc/apache2/sites-available/00
 Docker run command : 
 
 ```powershell
-php /var/apache2/templates/config-template.php > /etc/apache2/sites-available/001-reverse-proxy.conf
+docker run -e STATIC_APP=172.17.0.2:80 DYNAMIC_APP=172.17.0.3:3000 -p 8080:80 res/apache_rp
 ```
 
 
@@ -346,10 +346,55 @@ php /var/apache2/templates/config-template.php > /etc/apache2/sites-available/00
 
   ​
 
-## Additional steps
+## Load balancing: multiple server nodes
 
-Soon...
+### Configuration
 
+Source : https://httpd.apache.org/docs/2.4/fr/mod/mod_proxy_balancer.html
+
+To configure the multiple server nodes, we have to update the config-template.php
+
+```php
+<?php
+  $dynamic_app1 = getenv('DYNAMIC_APP1');
+  $dynamic_app2 = getenv('DYNAMIC_APP2');
+  $static_app1 = getenv('STATIC_APP1');
+  $static_app2 = getenv('STATIC_APP2');
+?>
+
+<VirtualHost *:80>
+    ServerName demo.res.ch
+    
+    <Proxy "balancer://locationsset">
+        BalancerMember 'http://<?php print "$dynamic_app1"?>'
+        BalancerMember 'http://<?php print "$dynamic_app2" ?>'
+    </Proxy>
+    
+    <Proxy "balancer://webserverset">
+        BalancerMember 'http://<?php print "$static_app1" ?>/'
+        BalancerMember 'http://<?php print "$static_app2" ?>/'
+    </Proxy>
+    
+    ProxyPass '/api/locations/' 'balancer://locationsset/'
+    ProxyPassReverse '/api/locations/' 'balancer://locationsset/'
+    
+    ProxyPass '/' 'balancer://webserverset/'
+    ProxyPassReverse '/' 'balancer://webserverset/' 
+</VirtualHost>
+```
+
+finally, we can add the following line to the dockerfile to activate de module
+
+`` RUN a2enmod proxy_balancer status lbmethod_byrequests`` 
+
+To check the load balancing I tryed to kill docker container and check if the application works correctly with one or the other image running.
+
+### Acceptance criteria
+
+- You extend the reverse proxy configuration to support **load balancing**. ✔
+- You show that you can have **multiple static server nodes** and **multiple dynamic server nodes**. ✔
+- You prove that the **load balancer** can distribute HTTP requests between these nodes. ✔
+- You have documented your configuration and your validation procedure in your report. ✔
 
 
 
