@@ -450,7 +450,7 @@ This script will run a docker image with the portainer app to manage docker with
 
 To acces to this app, run this script and acces to http://192.168.99.100:9000/#/dashboard
 
-![Portainer management UI](C:/Users/olivier/Desktop/tmp/images_report/portainer.PNG)
+![Portainer management UI](images_report/portainer.PNG)
 
 With this app you can do a lot of thing with Docker with a simple interface
 
