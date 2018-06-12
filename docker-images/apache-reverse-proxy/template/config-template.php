@@ -13,9 +13,12 @@
         BalancerMember 'http://<?php print "$dynamic_app2" ?>'
     </Proxy>
     
+    
+    Header add Set-Cookie "ROUTEID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
     <Proxy "balancer://webserverset">
-        BalancerMember 'http://<?php print "$static_app1" ?>/'
-        BalancerMember 'http://<?php print "$static_app2" ?>/'
+        BalancerMember 'http://<?php print "$static_app1" ?>' route=1
+        BalancerMember 'http://<?php print "$static_app2" ?>' route=2
+        ProxySet stickysession=ROUTEID
     </Proxy>
     
     ProxyPass '/api/locations/' 'balancer://locationsset/'

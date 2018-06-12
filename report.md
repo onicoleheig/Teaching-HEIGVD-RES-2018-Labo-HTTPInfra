@@ -399,6 +399,44 @@ To check the load balancing I tryed to kill docker container and check if the ap
 
 
 
+## Load balancing: round-robin vs sticky sessions (0.5 pt)
+
+### Configuration
+
+Add the  apache enable command to the dockerfile
+
+```
+RUN a2enmod headers
+```
+
+and update the config-template.php for the static part 
+
+```php
+Header add Set-Cookie "ROUTEID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
+<Proxy "balancer://webserverset">
+    BalancerMember 'http://<?php print "$static_app1" ?>' route=1
+    BalancerMember 'http://<?php print "$static_app2" ?>' route=2
+    ProxySet stickysession=ROUTEID
+</Proxy>
+
+ProxyPass '/' 'balancer://webserverset/'
+ProxyPassReverse '/' 'balancer://webserverset/' 
+```
+
+to test if the sticky session works, we show the apache php IP on the webpage, you can refresh the webpage and the same IP will be shown. If you delete the cookie, you'll have 50% change to change to the other server.
+
+### Acceptance criteria
+
+- You do a setup to demonstrate the notion of sticky session. ✔
+
+- You prove that your load balancer can distribute HTTP requests in a round-robin fashion to the dynamic server nodes (because there is no state). ✔
+
+- You prove that your load balancer can handle sticky sessions when forwarding HTTP requests to the static server nodes. ✔
+
+- You have documented your configuration and your validation procedure in your report. ✔
+
+  ​
+
 ## Some useful Docker commands
 
 Source : https://techoverflow.net/2013/10/22/docker-remove-all-images-and-containers/

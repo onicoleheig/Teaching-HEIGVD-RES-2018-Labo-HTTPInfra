@@ -11,8 +11,11 @@ COPY conf/ /etc/apache2/
 RUN a2enmod proxy proxy_http
 RUN a2ensite 000-* 001-*
 
-#added for load balancing
+#added for load balancing round robin
 RUN a2enmod proxy_balancer status lbmethod_byrequests
+
+#added for load balancing sticky session
+RUN a2enmod headers
 
 #docker build -t res/apache_rp .
 #docker run -e STATIC_APP=172.17.0.2:80 -e STATIC_APP2=172.17.0.3:80 -e DYNAMIC_APP=172.17.0.4:3000 -e DYNAMIC_APP2=172.17.0.5:3000 -p 8080:80 res/apache_rp
