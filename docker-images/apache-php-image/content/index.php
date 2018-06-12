@@ -47,7 +47,7 @@
     <header class="masthead">
       <div class="container">
         <div class="intro-text">
-          <div class="intro-lead-in">Welcome to my first apache server with Docker</div>
+          <div class="intro-lead-in">IP apache php : <?php echo $_SERVER['SERVER_ADDR'] ?></div>
           <div id="location" class="intro-heading text-uppercase">It's Nice To Meet You</div>
         </div>
       </div>

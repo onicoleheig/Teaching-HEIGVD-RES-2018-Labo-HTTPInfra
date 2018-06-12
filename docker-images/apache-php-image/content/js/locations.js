@@ -6,12 +6,12 @@ $(function() {
             console.log(locations);
             var message = "No location !";
             if(locations.length > 0){
-                message = locations[0].city + " " + locations[0].city;
+                message = locations[0].city;
             }
             $("#location").text(message);
         });
     };
     
     loadLocations();
-    setInterval(loadLocations, 1000);
+    setInterval(loadLocations, 2000);
 });

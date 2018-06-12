@@ -31,6 +31,8 @@ dynamic_app2=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' express
 
 echo "## IP of injected: static $static_app1, $static_app2 and dynamic $dynamic_app1, $dynamic_app2\n" 
 docker run -d -p 8080:80 -e STATIC_APP1=$static_app1:80 -e STATIC_APP2=$static_app2:80 -e DYNAMIC_APP1=$dynamic_app1:3000 -e DYNAMIC_APP2=$dynamic_app2:3000 --name apache_rp res/apache_rp
+#docker run -d -p 8080:80 -e STATIC_APP1=172.17.0.2:80 -e STATIC_APP2=$172.17.0.3:80 -e DYNAMIC_APP1=$172.17.0.4:3000 -e DYNAMIC_APP2=$5:3000 --name apache_rp res/apache_rp
+#docker run -it -p 8080:80 -e STATIC_APP1=172.17.0.2:80 -e STATIC_APP2=$172.17.0.3:80 -e DYNAMIC_APP1=$172.17.0.4:3000 -e DYNAMIC_APP2=$5:3000 --name apache_rp res/apache_rp /bin/bash
 
 echo "\n### check ip apache_static1 container\n"
 docker inspect apache_static1 | grep -i ipaddress

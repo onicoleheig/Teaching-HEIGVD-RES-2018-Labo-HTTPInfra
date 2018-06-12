@@ -2,6 +2,7 @@ if(process.env.LOCATIONCNT == undefined){
     process.env.LOCATIONCNT = 0;
 }
 
+var ip = require('ip');
 var Chance = require('chance');
 var chance = new Chance();
 
@@ -30,7 +31,7 @@ function generateLocation(){
             street: street,
             number: chance.areacode(),
             postalNumber: chance.postal(),
-            city: chance.city() + process.env.LOCATIONCNT,
+            city: chance.city() + " cnt : " + process.env.LOCATIONCNT + ", express_ip : " + ip.address(),
             country: country
         });
     }
